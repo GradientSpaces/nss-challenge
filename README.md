@@ -62,6 +62,31 @@ Note that there is a difference between annotation.zip and annotation_multiway.z
 Data evaluation will be hosted on our <a href="https://eval.nothing-stands-still.com/">evaluation server</a>. Users will be able to submit their results in a specific format and get the results back in a few minutes (details on the format will be updated soon).
 
 ## Organizers
+<table border="0">
+	<tr>
+		<td></td>
+		<td></td>
+		<td></td>
+		<td></td>
+		<td></td>
+	</tr>
+ 	<tr>
+		<td>Tao Sun</td>
+		<td>Yan Hao</td>
+		<td>Shengyu Huang</td>
+		<td>Michael Helmberger</td>
+		<td>Iro Armeni</td>
+  	</tr>
+   	<tr>
+		<td>ETH Zurich</td>
+		<td>ETH Zurich</td>
+		<td>ETH Zurich</td>
+		<td>HILTI Group</td>
+		<td>Stanford University</td>
+  	</tr>
+   
+</table>
+ 
 <div class=”container”>
 <div class="row" style="margin-top:30px; text-align: center">
 	<div class="col-lg-2 col-md-2 col-sm-2 col-xs-12r">
