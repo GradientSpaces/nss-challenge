@@ -75,12 +75,12 @@ Data evaluation will be hosted on our <a href="https://eval.nothing-stands-still
     		ETH Zurich
 	</div>
 	<div class="col-lg-2 col-md-2 col-sm-2 col-xs-12 text-center">
-		<img src="https://shengyuh.github.io/thumbnail/portrait.jpg" style="width:200%"></br>
+		<img src="https://shengyuh.github.io/thumbnail/portrait.jpg" style="width:20%"></br>
   		Shengyu Huang</br>
     		ETH Zurich
 	</div>
 	<div class="col-lg-2 col-md-2 col-sm-2 col-xs-12 text-center">
-		<img src="" style="width:20%"></br>
+		<img src="https://images.app.goo.gl/iQikSYFLCq8mqm669" style="width:20%"></br>
   		Michael Helmberger</br>
     		HILTI Group
 	</div>
