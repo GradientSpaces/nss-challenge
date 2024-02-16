@@ -62,26 +62,31 @@ Note that there is a difference between annotation.zip and annotation_multiway.z
 Data evaluation will be hosted on our <a href="https://eval.nothing-stands-still.com/">evaluation server</a>. Users will be able to submit their results in a specific format and get the results back in a few minutes (details on the format will be updated soon).
 
 ## Organizers
-<table cellspacing="0" cellpadding="0" style="border: none; border-collapse: collapse">
-	<tr>
-		<td><img src="https://www.suniique.com/authors/admin/avatar_hua1a481ec1dd6fcaa43928bb8e6a782f7_81695_250x250_fill_q90_lanczos_center.jpg"></td>
-		<td><img src="https://media.licdn.com/dms/image/C5603AQHfUulJV2wETg/profile-displayphoto-shrink_400_400/0/1646178942166?e=1691020800&v=beta&t=cUEX0eIy3dtC-HyIVwvH2oEICr6GV5HFE8a4lEoFBZk"</td>
-		<td><img src="https://shengyuh.github.io/thumbnail/portrait.jpg"</td>
-		<td><img src="https://images.app.goo.gl/tkqbs1aU1qq5y7bR6"</td>
-		<td><img src="https://ir0.github.io/files/images/iro_armeni.png"></td>
-	</tr>
-	<tr>
-		<td>Tao Sun</td>
-		<td>Yan Hao</td>
-		<td>Shengyu Huang</td>
-		<td>Michael Helmberger</td>
-		<td>Iro Armeni</td>
-	</tr>
- 	<tr>
-		<td>ETH Zurich</td>
-		<td>ETH Zurich</td>
-		<td>ETH Zurich</td>
-		<td>HILTI Group</td>
-		<td>Stanfod University</td>
-	</tr>
-</table>
+
+<div class="row" style="margin-top:30px; text-align: center">
+	<div class="col-lg-3 col-md-3 col-sm-3 col-xs-12 text-center">
+		<img src="https://www.suniique.com/authors/admin/avatar_hua1a481ec1dd6fcaa43928bb8e6a782f7_81695_250x250_fill_q90_lanczos_center.jpg"></br>
+  		Tao Sun</br>
+    		ETH Zurich
+	</div>
+	<div class="col-lg-3 col-md-3 col-sm-3 col-xs-12 text-center">
+		<img src="https://media.licdn.com/dms/image/C5603AQHfUulJV2wETg/profile-displayphoto-shrink_400_400/0/1646178942166?e=1691020800&v=beta&t=cUEX0eIy3dtC-HyIVwvH2oEICr6GV5HFE8a4lEoFBZk"></br>
+  		Yan Hao</br>
+    		ETH Zurich
+	</div>
+	<div class="col-lg-3 col-md-3 col-sm-3 col-xs-12 text-center">
+		<img src="https://shengyuh.github.io/thumbnail/portrait.jpg"></br>
+  		Shengyu Huang</br>
+    		ETH Zurich
+	</div>
+	<div class="col-lg-3 col-md-3 col-sm-3 col-xs-12 text-center">
+		<img src=""></br>
+  		Michael Helmberger</br>
+    		HILTI Group
+	</div>
+	<div class="col-lg-3 col-md-3 col-sm-3 col-xs-12 text-center">
+		<img src=""></br>
+  		Iro Armeni</br>
+    		Stanford University
+	</div>
+ </div>
