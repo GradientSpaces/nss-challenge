@@ -62,7 +62,7 @@ Note that there is a difference between annotation.zip and annotation_multiway.z
 Data evaluation will be hosted on our <a href="https://eval.nothing-stands-still.com/">evaluation server</a>. Users will be able to submit their results in a specific format and get the results back in a few minutes (details on the format will be updated soon).
 
 ## Organizers
-
+<div class=”container”>
 <div class="row" style="margin-top:30px; text-align: center">
 	<div class="col-lg-2 col-md-2 col-sm-2 col-xs-12r">
 		<!--img src="https://www.suniique.com/authors/admin/avatar_hua1a481ec1dd6fcaa43928bb8e6a782f7_81695_250x250_fill_q90_lanczos_center.jpg" style="width:16%"></br-->
@@ -92,3 +92,4 @@ Data evaluation will be hosted on our <a href="https://eval.nothing-stands-still
  	<div class="col-lg-2 col-md-2 col-sm-2 col-xs-12 text-center">
 	</div>
  </div>
+</div>
