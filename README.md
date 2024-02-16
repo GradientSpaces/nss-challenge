@@ -65,27 +65,27 @@ Data evaluation will be hosted on our <a href="https://eval.nothing-stands-still
 
 <div class="row" style="margin-top:30px; text-align: center">
 	<div class="col-lg-2 col-md-2 col-sm-2 col-xs-12 text-center">
-		<img src="https://www.suniique.com/authors/admin/avatar_hua1a481ec1dd6fcaa43928bb8e6a782f7_81695_250x250_fill_q90_lanczos_center.jpg" style="width:20%"></br>
+		<img src="https://www.suniique.com/authors/admin/avatar_hua1a481ec1dd6fcaa43928bb8e6a782f7_81695_250x250_fill_q90_lanczos_center.jpg" style="width:16%"></br>
   		Tao Sun</br>
     		ETH Zurich
 	</div>
 	<div class="col-lg-2 col-md-2 col-sm-2 col-xs-12 text-center">
-		<img src="https://media.licdn.com/dms/image/C5603AQHfUulJV2wETg/profile-displayphoto-shrink_400_400/0/1646178942166?e=1691020800&v=beta&t=cUEX0eIy3dtC-HyIVwvH2oEICr6GV5HFE8a4lEoFBZk" style="width:20%"></br>
+		<img src="https://media.licdn.com/dms/image/C5603AQHfUulJV2wETg/profile-displayphoto-shrink_400_400/0/1646178942166?e=1691020800&v=beta&t=cUEX0eIy3dtC-HyIVwvH2oEICr6GV5HFE8a4lEoFBZk" style="width:16%"></br>
   		Yan Hao</br>
     		ETH Zurich
 	</div>
 	<div class="col-lg-2 col-md-2 col-sm-2 col-xs-12 text-center">
-		<img src="https://shengyuh.github.io/thumbnail/portrait.jpg" style="width:20%"></br>
+		<img src="https://shengyuh.github.io/thumbnail/portrait.jpg" style="width:16%"></br>
   		Shengyu Huang</br>
     		ETH Zurich
 	</div>
 	<div class="col-lg-2 col-md-2 col-sm-2 col-xs-12 text-center">
-		<img src="https://images.app.goo.gl/iQikSYFLCq8mqm669" style="width:20%"></br>
+		<img src="https://images.app.goo.gl/iQikSYFLCq8mqm669" style="width:16%"></br>
   		Michael Helmberger</br>
     		HILTI Group
 	</div>
 	<div class="col-lg-2 col-md-2 col-sm-2 col-xs-12 text-center">
-		<img src="https://ir0.github.io/files/images/iro_armeni.png" style="width:20%"></br>
+		<img src="https://ir0.github.io/files/images/iro_armeni.png" style="width:16%"></br>
   		Iro Armeni</br>
     		Stanford University
 	</div>
