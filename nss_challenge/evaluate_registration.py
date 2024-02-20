@@ -56,67 +56,55 @@ https://nothing-stands-still.com/challenge
 
 from argparse import ArgumentParser
 import json
+import os
 
 import numpy as np
-import open3d as o3d
+
+from .metrics.rmse import compute_pairwise_rmse
+from .metrics.geometric import evaluate_geometric_error
 
 
 def load_json(path):
-    with open(path, "r") as f:
+    """Load a JSON file."""
+    with open(path, "r", encoding="utf8") as f:
         return json.load(f)
-    
 
-def evaluate_pairwise(edges_gt, edges_pred, translation_threshold, rotation_threshold_rad):
-    """Evaluates pairwise registration metrics.
-    
-    Args
-    ----
-        edges_gt (list[dict]): List of ground truth edges with 'source', 'target', and 'tsfm'.
-        edges_pred (list[dict]): List of predicted edges with 'source', 'target', and 'tsfm'.
-        translation_threshold (float): Threshold for translation error to consider alignment correct.
-        rotation_threshold_rad (float): Threshold for rotation error (in radians) to consider alignment correct.
 
-    Returns
-    -------
-        metrics (dict): Dictionary with pairwise RMSE, recall, average translation error, and average rotation error.
-    """
-    total_translation_error = 0
-    total_rotation_error = 0
-    correctly_aligned_count = 0
-    rmse_sum = 0
-    
-    for gt_edge, pred_edge in zip(edges_gt, edges_pred):
-        gt_tsfm = np.array(gt_edge['tsfm'])
-        pred_tsfm = np.array(pred_edge['tsfm'])
-        translation_error, rotation_error = calculate_error(gt_tsfm, pred_tsfm)
-        rmse_sum += translation_error**2 + rotation_error**2
-        
-        if translation_error <= translation_threshold and rotation_error <= rotation_threshold_rad:
-            correctly_aligned_count += 1
-            total_translation_error += translation_error
-            total_rotation_error += rotation_error
-    
-    num_pairs = len(edges_gt)
-    pairwise_rmse = np.sqrt(rmse_sum / num_pairs)
-    recall = correctly_aligned_count / num_pairs if num_pairs > 0 else 0
-    avg_translation_error = total_translation_error / correctly_aligned_count if correctly_aligned_count > 0 else 0
-    avg_rotation_error = total_rotation_error / correctly_aligned_count if correctly_aligned_count > 0 else 0
-    
-    metrics = {
-        'Pairwise RMSE': pairwise_rmse,
-        'Registration Recall': recall,
-        'Average Translation Error': avg_translation_error,
-        'Average Rotation Error': avg_rotation_error
-    }
-    
-    return metrics
-        
-
-def evaluate(prediction_path, ground_truth_path):
-    ground_truth = load_json(ground_truth_path)
-    prediction = load_json(prediction_path)
+def evaluate(args):
+    """Evaluate the performance of the predicted pose graph."""
+    ground_truth = load_json(args.prediction)
+    prediction = load_json(args.target)
     assert len(ground_truth) == len(prediction), "Length of ground truth and submission are not equal."
 
+    # Compute pairwise metrics for each scene
+    metrics_per_scene = {}
+    for gt_graph, pred_graph in zip(ground_truth, prediction):
+        assert gt_graph["name"] == pred_graph["name"], f"Scene names do not match for {gt_graph['name']}."
+        metrics = evaluate_geometric_error(
+            gt_graph, pred_graph, args.translation_threshold, args.rotation_threshold
+        )
+
+        if args.point_cloud_dir is not None:
+            if os.path.exists(args.point_cloud_dir):
+                rmses = compute_pairwise_rmse(
+                    gt_graph, pred_graph, base_dir=args.point_cloud_dir
+                )
+                metrics.update(rmses)
+            else:
+                print(f"Point cloud directory not found: {args.point_cloud_dir}")
+        else:
+            print("Point cloud directory not provided. Skipping pairwise RMSE evaluation.")
+
+        metrics_per_scene[gt_graph["name"]] = metrics
+    
+    # Average the metrics over all scenes
+    metrics_overall = {}
+    for metric in metrics_per_scene[ground_truth[0]["name"]]:
+        metrics_overall[metric] = np.mean(
+            [metrics_per_scene[scene][metric] for scene in ground_truth]
+        )
+    return metrics_overall
+        
 
 if __name__ == "__main__":
     parser = ArgumentParser(
@@ -134,10 +122,23 @@ if __name__ == "__main__":
         required=True,
         help="Path to target json file."
     )
+    parser.add_argument(
+        "--translation_threshold",
+        type=float,
+        default=0.1,
+        help="Threshold (in meters) for translation error to consider successfully aligned."
+    )
+    parser.add_argument(
+        "--rotation_threshold",
+        type=float,
+        default=10,
+        help="Threshold (in degrees) for rotation error to consider successfully aligned."
+    )
 
     args = parser.parse_args()
-    evaluate(args.prediction, args.target)
+    metrics = evaluate(args)
 
-
-
-
+    print("Evaluation results:")
+    for metric, value in metrics.items():
+        print(f"{metric}: {value:.4f}")
+    

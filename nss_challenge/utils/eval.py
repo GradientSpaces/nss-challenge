@@ -1,111 +1,114 @@
-import math
+"""Evaluation utils for point cloud registration."""
+
 import numpy as np
 
 
 def transformation_residuals(x1, x2, R, t):
-    """
-    Computer the pointwise residuals based on the estimated transformation paramaters
+    """Compute the pointwise residuals based on the estimated transformation.
     
-    Args:
-        x1  (torch array): points of the first point cloud [b,n,3]
-        x2  (torch array): points of the second point cloud [b,n,3]
-        R   (torch array): estimated rotation matrice [b,3,3]
-        t   (torch array): estimated translation vectors [b,3,1]
-    Returns:
-        res (torch array): pointwise residuals (Eucledean distance) [b,n,1]
+    Args
+    ----
+        x1 (np.ndarray): Points of the first point cloud [bs, n, 3]
+        x2 (np.ndarray): Points of the second point cloud [bs, n, 3]
+        R (np.ndarray): Estimated rotation matrices [bs, 3, 3]
+        t (np.ndarray): Estimated translation vectors [bs, 3, 1]
+
+    Returns
+    -------
+        res (np.ndarray): Pointwise residuals (Euclidean distance) [b, n, 1]
     """
-    x2_reconstruct = torch.matmul(R, x1.transpose(1, 2)) + t 
-    res = torch.norm(x2_reconstruct.transpose(1, 2) - x2, dim=2)
+    x2_reconstruct = np.matmul(R, x1.transpose(0, 2, 1)) + t
+    res = np.linalg.norm(x2_reconstruct.transpose(0, 2, 1) - x2, axis=2, keepdims=True)
     return res
 
 
 def rotation_error(R1, R2):
-    """
-    Torch batch implementation of the rotation error between the estimated and the ground truth rotatiom matrix. 
-    Rotation error is defined as r_e = \arccos(\frac{Trace(\mathbf{R}_{ij}^{T}\mathbf{R}_{ij}^{\mathrm{GT}) - 1}{2})
-    Args: 
-        R1 (torch tensor): Estimated rotation matrices [b,3,3] / [3, 3]
-        R2 (torch tensor): Ground truth rotation matrices [b,3,3] / [3, 3]
-    Returns:
-        ae (torch tensor): Rotation error in angular degreees [b]
+    """Compute rotation error between the estimated and the ground truth rotation matrix. 
+    
+    $$r_e = \arc\cos((trace(R_{ij}^{T} R_{ij}^{GT}) - 1) / 2)$$
+    
+    Args
+    ----
+        R1 (np.ndarray): Estimated rotation matrices [bs, 3, 3] or [3, 3]
+        R2 (np.ndarray): Ground truth rotation matrices [bs, 3, 3] or [3, 3]
+    
+    Returns
+    -------
+        ae (np.ndarray): Rotation error in angular degrees [bs]
     """
     if R1.ndim == 2:
-        R1, R2 = R1.unsqueeze(0), R2.unsqueeze(0)
-        
-    R_ = torch.matmul(R1.transpose(1,2), R2)
-    e = torch.stack([(torch.trace(R_[_, :, :]) - 1) / 2 for _ in range(R_.shape[0])], dim=0)
+        R1 = R1[np.newaxis, :]
+        R2 = R2[np.newaxis, :]
 
-    # Clamp the errors to the valid range (otherwise torch.acos() is nan)
-    e = torch.clamp(e, -1, 1, out=None)
-    ae = torch.acos(e)
-    pi = torch.Tensor([math.pi])
-    ae = 180. * ae / pi.to(ae.device).type(ae.dtype)
+    R_ = np.matmul(R1.transpose(0, 2, 1), R2)
+    e = np.array([(np.trace(R_[i, :, :]) - 1) / 2 for i in range(R_.shape[0])])
+
+    # Clamp the errors to the valid range (otherwise np.arccos() can result in nan)
+    e = np.clip(e, -1, 1)
+    ae = np.arccos(e)
+    ae = 180. * ae / np.pi
     return ae
 
 
 def translation_error(t1, t2):
+    """Compute translation error between the estimated and the ground truth translation vectors.
+
+    Args
+    ----
+        t1 (np.ndarray): Estimated translation vectors [bs, 3] or [3]
+        t2 (np.ndarray): Ground truth translation vectors [bs, 3] or [3]
+    
+    Returns
+    -------
+        te (np.ndarray): translation error in meters [bs]
     """
-    Torch batch implementation of the rotation error between the estimated and the ground truth rotatiom matrix. 
-    Rotation error is defined as r_e = \arccos(\frac{Trace(\mathbf{R}_{ij}^{T}\mathbf{R}_{ij}^{\mathrm{GT}) - 1}{2})
-    Args: 
-        t1 (torch tensor): Estimated translation vectors [b,3] / / [3]
-        t2 (torch tensor): Ground truth translation vectors [b,3] / / [3]
-    Returns:
-        te (torch tensor): translation error in meters [b]
-    """
-    if t1.ndim == 3: 
-        t1, t2 = t1.squeeze(-1), t2.squeeze(-1)
-    assert t1.ndim <=2
+    if t1.ndim == 3:
+        t1 = t1.squeeze(-1)
+        t2 = t2.squeeze(-1)
 
     if t1.ndim == 2:
-        trans_error = torch.norm(t1-t2, dim=1)
+        trans_error = np.linalg.norm(t1 - t2, axis=1)
     elif t1.ndim == 1:
-        trans_error = torch.norm(t1-t2)   
+        trans_error = np.linalg.norm(t1 - t2)
     return trans_error
 
 
 def get_rot_trans_error(trans_est, trans_gt):
-    """
-    Get rotation and translation errors
-    Args: 
-        trans_est (torch tensor): [B, 4, 4]
-        trans_gt (torch tensor): [B, 4, 4]
-    """
-    rot_error = rotation_error(trans_est[:,:3,:3], trans_gt[:,:3,:3])
-    trans_error = translation_error(trans_est[:,:3,3], trans_gt[:,:3,3])
+    """Get rotation and translation errors."""
+    rot_error = rotation_error(trans_est[:, :3, :3], trans_gt[:, :3, :3])
+    trans_error = translation_error(trans_est[:, :3, 3], trans_gt[:, :3, 3])
     return rot_error, trans_error
 
 
 def get_rot_mse_error(rot_est, rot_gt):
-    """rotation MSE error used in DCPNet
+    """rotation MSE error used in DCPNet.
 
-    Args:
-        rot_est (torch tensor): [B, 3, 3]
-        rot_gt (torch tensor): [b, 3, 3]
+    Args
+    ----
+        rot_est (torch tensor): [bs, 3, 3]
+        rot_gt (torch tensor): [bs, 3, 3]
+    
+    Returns
+    -------
+        mse_error (float): Mean squared error of the rotation.
     """
-    eye = torch.eye(3).expand_as(rot_gt).to(rot_gt.device)
-    diff = eye - rot_est @ torch.inverse(rot_gt)
-    mse_error = (diff **2).mean()  
+    eye = np.tile(np.eye(3), (rot_gt.shape[0], 1, 1))
+    diff = eye - np.matmul(rot_est, np.linalg.inv(rot_gt))
+    mse_error = np.mean(np.square(diff))
     return mse_error
 
 
 def get_trans_mse_error(t_est, t_gt):
-    """translation MSE error used in DCPNet
+    """Translation MSE error used in DCPNet
 
-    Args:
-        t_est (torch tensor): [B, 3, 3]
-        t_gt (torch tensor): [b, 3, 3]
+    Args
+    ----
+        t_est (torch tensor): [bs, 3, 3]
+        t_gt (torch tensor): [bs, 3, 3]
+
+    Returns
+    -------
+        mse_error (float): Mean squared error of the translation.
     """
-    t_error = translation_error(t_est, t_gt) 
+    t_error = translation_error(t_est, t_gt)
     return (t_error ** 2).mean()
-
-
-def get_transformation_mse_error(trans_est, trans_gt):
-    """MSE error used in DCPNet
-
-    Args:
-        trans_est (torch tensor): [B, 4, 4]
-        trans_gt (torch tensor): [b, 4, 4]
-    """
-    r_mse, t_mse = get_rot_mse_error(trans_est[:,:3,:3], trans_gt[:,:3,:3]), get_trans_mse_error(trans_est[:,:3,3], trans_gt[:,:3,3])
-    return r_mse, t_mse

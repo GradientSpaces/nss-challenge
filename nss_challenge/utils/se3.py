@@ -10,10 +10,12 @@ def uniform_2_sphere(num: int = None):
 
     Source: https://gist.github.com/andrewbolster/10274979
 
-    Args:
+    Args
+    ----
         num (int): Number of vectors to sample (or None if single)
 
-    Returns:
+    Returns
+    -------
         np.ndarray: The return value. Random Vector of size (num, 3) with norm 1. 
             If num is None returned value will have size (3,)
 
@@ -35,12 +37,14 @@ def uniform_2_sphere(num: int = None):
 def sample_rotation_matrix(num_axis, augment_rotation):
     """Sample rotation matrix along [num_axis] axis and [0, augment_rotation] angle.
 
-    Args:
-        num_axis (int): rotate along how many axis
-        augment_rotation (float): rotate by how many angle in radians
+    Args
+    ----
+        num_axis (int): Rotate along how many axis.
+        augment_rotation (float): Rotate by how many angle in radians.
 
-    Returns:
-        np.ndarray, [3, 3]: sampled rotation matrix
+    Returns
+    -------
+        np.ndarray: Sampled rotation matrix of size [3, 3]
     """
     assert num_axis == 1 or num_axis == 3 or num_axis == 0
     if num_axis == 0:
@@ -64,11 +68,13 @@ def sample_rotation_matrix(num_axis, augment_rotation):
 def sample_translation_matrix(augment_translation):
     """Sample translation matrix along 3 axis and [0, augment_translation] meter.
     
-    Args:
-        augment_translation (float):  Translate by how many meters
+    Args
+    ----
+        augment_translation (float): Translate by how many meters.
 
-    Returns:
-        np.ndarray [3, 1]: Sampled translation matrix
+    Returns
+    -------
+        np.ndarray: Sampled translation matrix of size [3, 1].
     """
     T = np.random.rand(3) * augment_translation
     return T.reshape(3, 1)
@@ -79,16 +85,18 @@ def transform(pts, trans, norms = None):
 
     trans_pts = trans[:3, :3] @ pts + trans[:3, 3:4]
 
-    Args:
+    Args
+    ----
         pts (np.ndarray): Points to be transformed, [num_pts, 3] or [bs, num_pts, 3]
         trans (np.ndarray): The SE3 transformation matrix, [4, 4] or [bs, 4, 4]
         normals (np.ndarray, optional): Associated normal vectors to be transformed, 
             [num_pts, 3] or [bs, num_pts, 3]
 
-    Returns:
+    Returns
+    -------
         trans_pts (np.ndarray): Transformed points, [num_pts, 3] or [bs, num_pts, 3]
         trans_norms (np.ndarray): Transformed normal vectors, [num_pts, 3] or 
-            [bs, num_pts, 3]
+            [bs, num_pts, 3].
     """
     if len(pts.shape) == 3:
         trans_pts = trans[:, :3, :3] @ pts.permute(0, 2, 1) + trans[:, :3, 3:4]
@@ -107,11 +115,13 @@ def transform(pts, trans, norms = None):
 def decompose_trans(trans):
     """Decompose SE3 transformations into R and t.
 
-    Args:
+    Args
+    ----
         trans (np.ndarray): The integrated SE3 transformation matrix, [4, 4] 
             or [bs, 4, 4]
     
-    Returns:
+    Returns
+    -------
         R (np.ndarray): rotation matrix, [3, 3] or [bs, 3, 3]
         t (np.ndarray): translation matrix, [3, 1] or [bs, 3, 1]
     """
@@ -123,12 +133,14 @@ def decompose_trans(trans):
 def integrate_trans(R, t):
     """Integrate SE3 transformations from R and t.
 
-    Args:
+    Args
+    ----
         R (np.ndarray): Rotation matrix, [3, 3] or [bs, 3, 3]
         t (np.ndarray): Translation matrix, [3, 1] or [bs, 3, 1]
         
     
-    Returns:
+    Returns
+    -------
         trans (np.ndarray): The integrated SE3 transformation matrix, 
             [4, 4] or [bs, 4, 4]
     """
