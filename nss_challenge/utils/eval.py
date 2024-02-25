@@ -75,8 +75,8 @@ def translation_error(t1, t2):
 
 def get_rot_trans_error(trans_est, trans_gt):
     """Get rotation and translation errors."""
-    rot_error = rotation_error(trans_est[:, :3, :3], trans_gt[:, :3, :3])
-    trans_error = translation_error(trans_est[:, :3, 3], trans_gt[:, :3, 3])
+    rot_error = rotation_error(trans_est[..., :3, :3], trans_gt[..., :3, :3])
+    trans_error = translation_error(trans_est[..., :3, 3], trans_gt[..., :3, 3])
     return rot_error, trans_error
 
 

@@ -4,16 +4,11 @@
 import numpy as np
 
 from ..utils.eval import get_rot_trans_error
+from ..utils.logging import get_logger
+from .common import get_edge_transforms, get_node_transforms, look_up_transforms
 
 
-def _get_node_transforms(nodes):
-    """Precompute the transformation for each node in the pose graph for quick lookup."""
-    transforms = {}
-    for node in nodes:
-        name = node['name']
-        pose = np.array(node['pose'])
-        transforms[name] = pose
-    return transforms
+logger = get_logger("Metrics")
 
 
 def evaluate_geometric_error(gt_graph, pred_graph, translation_threshold, rotation_threshold):
@@ -39,20 +34,19 @@ def evaluate_geometric_error(gt_graph, pred_graph, translation_threshold, rotati
     pred_edges = pred_graph.get('edges', None)
 
     if pred_edges is None:
-        pred_transforms = _get_node_transforms(pred_nodes)
-        print(f"Using predicted node transformations for {gt_graph['name']}.")
+        pred_transforms = get_node_transforms(pred_nodes)
+        logger.info("No edges found in the prediction file for %s, using predicted node transformations.", gt_graph['name'])
+    else:
+        pred_transforms = get_edge_transforms(pred_edges)
 
-    for idx, gt_edge in enumerate(gt_edges):
+    for gt_edge in gt_edges:
         gt_tsfm = np.array(gt_edge['tsfm'])
+        src_node_id = gt_edge['source']
+        tgt_node_id = gt_edge['target']
         if pred_edges is not None:
-            pred_tsfm = np.array(pred_edges[idx]['tsfm'])
+            pred_tsfm = look_up_transforms(src_node_id, tgt_node_id, pred_transforms)
         else:
-            # Use precomputed transformations for predicted nodes
-            src_node_name = gt_graph['nodes'][gt_edge['source']]['name']
-            tgt_node_name = gt_graph['nodes'][gt_edge['target']]['name']
-            src_tsfm = pred_transforms.get(src_node_name, np.eye(4))
-            tgt_tsfm = pred_transforms.get(tgt_node_name, np.eye(4))
-            pred_tsfm = np.matmul(np.linalg.inv(src_tsfm), tgt_tsfm)
+            pred_tsfm = look_up_transforms(src_node_id, tgt_node_id, pred_transforms, compute_pairwise=True)
         rotation_error, translation_error = get_rot_trans_error(gt_tsfm, pred_tsfm)
 
         if translation_error <= translation_threshold and rotation_error <= rotation_threshold:
