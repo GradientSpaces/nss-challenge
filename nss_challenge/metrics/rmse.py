@@ -4,7 +4,7 @@
 import os
 import numpy as np
 
-from ..utils.open3d import get_correspondences, load_ply
+from ..utils.pointcloud import PointCloudCache, get_correspondences
 from .common import get_edge_transforms, get_node_transforms, look_up_transforms
 
 
@@ -16,17 +16,20 @@ def _get_node_name_by_id(node_id, nodes):
     return None
 
 
-def _compute_rmse(src_pcd, tgt_pcd, trans, search_voxel_size=0.2):
+def _compute_rmse(src_path, tgt_path, trans):
     """
     Compute the RMSE between corresponding points of source and target point clouds
     after applying a transformation to the source.
     """
-    correspondences = get_correspondences(src_pcd, tgt_pcd, trans, search_voxel_size)
+    correspondences = get_correspondences(src_path, tgt_path, trans)
     if correspondences.size == 0:
         return float('inf')  # Return infinity if no correspondences found
-
-    src_points = np.asarray(src_pcd.points)[correspondences[:, 0], :]
-    tgt_points = np.asarray(tgt_pcd.points)[correspondences[:, 1], :]
+    
+    point_cloud_cache = PointCloudCache()
+    src_points = point_cloud_cache.load(src_path)
+    tgt_points = point_cloud_cache.load(tgt_path)
+    src_points = src_points[correspondences[:, 0], :]
+    tgt_points = tgt_points[correspondences[:, 1], :]
     distances = np.linalg.norm(src_points - tgt_points, axis=1)
     rmse = np.sqrt(np.mean(np.square(distances)))
     return rmse
@@ -62,12 +65,12 @@ def compute_pairwise_rmse(gt_graph, pred_graph, base_dir):
         else:
             pred_tsfm = look_up_transforms(gt_edge['source'], gt_edge['target'], pred_transforms, compute_pairwise=True)
             
-        src_pcd = load_ply(os.path.join(base_dir, src_node_name))
-        tgt_pcd = load_ply(os.path.join(base_dir, tgt_node_name))
+        src_path = os.path.join(base_dir, src_node_name)
+        tgt_path = os.path.join(base_dir, tgt_node_name)
 
         # Use predicted transformation
         trans = np.array(pred_tsfm)
-        rmse = _compute_rmse(src_pcd, tgt_pcd, trans)
+        rmse = _compute_rmse(src_path, tgt_path, trans)
         rmses.append(rmse)
 
     overall_rmse = np.mean(rmses)

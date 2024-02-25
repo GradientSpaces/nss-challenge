@@ -1,4 +1,4 @@
-"""Evaluation utils for point cloud registration."""
+"""Evaluation utilities."""
 
 import numpy as np
 

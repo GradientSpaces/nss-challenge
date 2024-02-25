@@ -1,7 +1,7 @@
 """Logging utilities."""
 
 import logging
-from math import log
+
 
 def get_logger(name: str = "NSS Eval") -> logging.Logger:
     """Get a logger with the given name."""
