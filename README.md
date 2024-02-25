@@ -6,6 +6,43 @@ The Nothing Stands Still Challenge 2024 targets the task of multiway spatiotempo
 
 <img src="assets/challenge-teaser.jpeg">
 
+## Usage
+
+### Pre-requisites
+Please make sure you have the following packages installed:
+
+- Python 3.8 or later
+- Open3D 0.9.0 or later
+- NumPy 1.20.0 or later
+- Sklearn 0.22.0 or later
+
+### Evaluation
+To evaluate your results, you can use the provided evaluation script `evaluate_registration.py`. The script takes two required arguments: the path to the ground truth JSON file and the path to the prediction JSON file. 
+
+```shell
+python -m nss_challenge.evaluate_registration \
+    /path/to/ground_truth.json \
+    /path/to/prediction.json \
+    --point_cloud_dir /path/to/pointclouds
+```
+
+The optional argument `--point_clouds_dir` specifies the directory where the point clouds are stored. This is required if you want to compute the RMSE metrics. Note that this may take a longer time to compute.
+
+### Output
+
+You can expect the following output for the overall evaluation of all scenes:
+```
+Overall                                 All            Same-Stage     Cross-Stage    
+-------------------------------------------------------------------------------------
+Pairwise RMSE [m]                       0.310          0.167          0.995          
+Registration Recall [%]                 23.0           46.8           13.5
+Average Translation Error [m]           0.181          0.084          0.760          
+Average Rotation Error [deg]            5.231          2.139          9.135      
+```
+
+There will also be tables showing the same metrics for each scene.
+
+
 ## Evaluation Protocol
 The goal of the challenge is to achieve a global spatiotemporal map of 3D fragments collected at any time and location at the same construction scenes, as the latter evolve. Participants will be evaluated on the original split of the Nothing Stands Still dataset for the multiway registration task and particularly on the metric of Global Root Mean Squared Error (RMSE) of each scene, which we will use to select the winner. The winner and the first runner up will receive a cash prize (4K CHF and 1K CHF respectively). Everybody is welcome to participate in the challenge, however only students (undergrad, postgrad) are eligible for receiving the cash prizes. Below, we provide the details of Global RMSE and other metrics used for evaluating algorithmic behavior.
 
