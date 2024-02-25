@@ -21,9 +21,9 @@ To evaluate your results, you can use the provided evaluation script `evaluate_r
 
 ```shell
 python -m nss_challenge.evaluate_registration \
-    /path/to/ground_truth.json \
-    /path/to/prediction.json \
-    --point_cloud_dir /path/to/pointclouds
+    "/path/to/ground_truth.json" \
+    "/path/to/prediction.json" \
+    --point_cloud_dir "/dir/to/pointclouds"
 ```
 
 The optional argument `--point_clouds_dir` specifies the directory where the point clouds are stored. This is required if you want to compute the RMSE metrics. Note that this may take a longer time to compute.
