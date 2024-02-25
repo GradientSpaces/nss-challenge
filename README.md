@@ -62,6 +62,45 @@ Note that there is a difference between annotation.zip and annotation_multiway.z
 Data evaluation will be hosted on our <a href="https://eval.nothing-stands-still.com/">evaluation server</a>. Users will be able to submit their results in a specific format and get the results back in a few minutes (details on the format will be updated soon).
 
 
+### Format
+We use JSON files defining the pose graphs for global and pairwise point cloud
+registration evaluations. Each JSON file contains a list of pose graphs, each
+representing a specific building scene.
+
+```
+- list[dict]:                       List of pose graphs.
+
+  - name (str):                     Name for the building scene, formatted as "BldgX_SceneN".
+
+  - nodes (list[dict]):             List of nodes representing point clouds within the scene.
+    - id (int):                     Identifier (ID) for the node within its scene.
+    - name (str):                   Name of the point cloud file, formatted as "BldgX_StageY_SpotZ.ply".
+    - tsfm (list[list[float]]):     4x4 transformation matrix of the pose of the point cloud in global coordinates.
+    - building (str):               Building name, matching "X" in the node name.
+    - stage (str):                  Temporal stage, matching "Y" in the node name.
+    - spot (str):                   Spot number,  matching "Z" in the node name.
+    - points (int):                 Number of points in the point cloud.
+
+  - edges (list[dict], optional):   List of edges representing pairwise relationships between nodes. Each edge is a dictionary:
+    - source (int):                 Node ID of the source point cloud.
+    - target (int):                 Node ID of the target point cloud.
+    - tsfm (list[list[float]]):     4x4 transformation matrix of the relative pose from the source to the target.
+    - overlap (float):              Overlap ratio between the source and target, ranging from 0.0 to 1.0.
+    - temporal_change (float):      Temporal change ratio indicating the amount of temporal change between the source and target, ranging from 0.0 to 1.0.
+    - same_stage (bool):            Indicates whether the source and target come from the same temporal stage.
+```
+
+### Notes
+- The transformation matrix is in the format of a 4x4 matrix, where the top-left 3x3 submatrix is the rotation matrix and the top-right 3x1 submatrix is the translation vector.
+- In the submission, only the `id`, `tsfm` fields in the nodes and `source`, `target`, `tsfm` fields in edges are considered.
+- For global pose evaluation, only the transformation in the `nodes` are  considered.
+- For pairwise pose evaluation, metrics are computed over the defined edges. If `edges`
+  are missing or partially missing in the prediction files, the missing parts will be 
+  computed using the nodes' global poses.
+
+For more details, please refer to the challenge website:
+https://nothing-stands-still.com/challenge
+
   
 ## Organizers
 <table border="0" width="100%">
