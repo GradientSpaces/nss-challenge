@@ -16,18 +16,20 @@ def _get_node_name_by_id(node_id, nodes):
     return None
 
 
-def _compute_rmse(src_path, tgt_path, trans):
+def _compute_rmse(src_path, tgt_path, trans, gt_trans):
     """
     Compute the RMSE between corresponding points of source and target point clouds
     after applying a transformation to the source.
     """
-    correspondences = get_correspondences(src_path, tgt_path, trans)
+    correspondences = get_correspondences(src_path, tgt_path, gt_trans)
     if correspondences.size == 0:
         return float('inf')  # Return infinity if no correspondences found
     
     point_cloud_cache = PointCloudCache()
     src_points = point_cloud_cache.load(src_path)
     tgt_points = point_cloud_cache.load(tgt_path)
+    
+    src_points = np.dot(src_points, trans[:3, :3].T) + trans[:3, 3]
     src_points = src_points[correspondences[:, 0], :]
     tgt_points = tgt_points[correspondences[:, 1], :]
     distances = np.linalg.norm(src_points - tgt_points, axis=1)
@@ -70,7 +72,8 @@ def compute_pairwise_rmse(gt_graph, pred_graph, base_dir):
 
         # Use predicted transformation
         trans = np.array(pred_tsfm)
-        rmse = _compute_rmse(src_path, tgt_path, trans)
+        gt_trans = np.array(gt_edge['tsfm'])
+        rmse = _compute_rmse(src_path, tgt_path, trans, gt_trans)
         rmses.append(rmse)
 
     overall_rmse = np.mean(rmses)

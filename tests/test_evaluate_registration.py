@@ -26,26 +26,28 @@ class TestEvaluateRegistration(unittest.TestCase):
             ),
             translation_threshold=0.1,
             rotation_threshold=10,
+            point_cloud_dir=os.path.join(
+                os.path.dirname(__file__), "testdata", "pointclouds"
+            ),
         )
 
     def test_evaluate(self):
         metrics = evaluate(self.args)
         self.assertIsInstance(metrics, dict)
-        self.assertEqual(len(metrics), 4)
-        self.assertTrue("pairwise_rmse" in metrics)
-        self.assertTrue("recall" in metrics)
-        self.assertTrue("avg_translation_error" in metrics)
-        self.assertTrue("avg_rotation_error" in metrics)
-        print(metrics)
-        # self.assertTrue(
-        #     np.allclose(metrics["pairwise_rmse"], 0.0, atol=1e-3)
-        # )
-        # self.assertTrue(
-        #     np.allclose(metrics["recall"], 1.0, atol=1e-3)
-        # )
-        # self.assertTrue(
-        #     np.allclose(metrics["avg_translation_error"], 0.0, atol=1e-3)
-        # )
-        # self.assertTrue(
-        #     np.allclose(metrics["avg_rotation_error"], 0.0, atol=1e-3)
-        # )
+        
+        metrics_scene = metrics["Bldg0_Scene1"]
+        self.assertEqual(len(metrics_scene), 3)
+
+        metric = metrics_scene["All"]
+        self.assertTrue(
+            np.allclose(metric["Pairwise RMSE"], 0.0, atol=1e-1)
+        )
+        self.assertTrue(
+            np.allclose(metric["Registration Recall"], 1.0, atol=1e-3)
+        )
+        self.assertTrue(
+            np.allclose(metric["Average Rotation Error"], 0.0, atol=1e-3)
+        )
+        self.assertTrue(
+            np.allclose(metric["Average Translation Error"], 0.0, atol=1e-3)
+        )

@@ -46,8 +46,11 @@ There will also be tables showing the same metrics for each scene.
 ## Evaluation Protocol
 The goal of the challenge is to achieve a global spatiotemporal map of 3D fragments collected at any time and location at the same construction scenes, as the latter evolve. Participants will be evaluated on the original split of the Nothing Stands Still dataset for the multiway registration task and particularly on the metric of Global Root Mean Squared Error (RMSE) of each scene, which we will use to select the winner. The winner and the first runner up will receive a cash prize (4K CHF and 1K CHF respectively). Everybody is welcome to participate in the challenge, however only students (undergrad, postgrad) are eligible for receiving the cash prizes. Below, we provide the details of Global RMSE and other metrics used for evaluating algorithmic behavior.
 
-<b>METRIC	UNIT	DESCRIPTION</b>
 <table>
+  <tr>
+    <th>Metric</th>
+    <th>Unit</th>
+    <th>Description</th>
   <tr>
     <td>Global RMSE</td>
     <td>Meters</td>
