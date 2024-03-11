@@ -88,7 +88,7 @@ class PointCloudCache:
         self.kd_tree_cache.clear()
 
 
-def get_correspondences(src_path, tgt_path, trans, k=1):
+def get_correspondences(src_path, tgt_path, trans, dist_thresh=0.1):
     """Get correspondences point pairs between two point clouds.
 
     Args
@@ -96,7 +96,7 @@ def get_correspondences(src_path, tgt_path, trans, k=1):
         src_path (str): Path to the source point cloud file.
         tgt_path (str): Path to the target point cloud file.
         trans (np.ndarray): The 4x4 transformation matrix from source to target.
-        k (int, optional): The number of nearest neighbors to search for. Default is 1.
+        dist_thresh (float): The distance threshold for overlapping points. Defaults to 0.1.
 
     Returns
     -------
@@ -104,8 +104,10 @@ def get_correspondences(src_path, tgt_path, trans, k=1):
     """
     point_cloud_cache = PointCloudCache()
     src_points = point_cloud_cache.load(src_path)
-    src_points_transformed = (np.dot(trans[:3, :3], src_points.T) + trans[:3, 3].reshape(3, 1)).T
+    src_points_transformed = np.dot(src_points, trans[:3, :3].T) + trans[:3, 3]
 
     tree = point_cloud_cache.get_tree(tgt_path)
-    _, indices = tree.query(src_points_transformed, k=k)
-    return np.hstack((np.arange(len(src_points))[:, np.newaxis], indices))
+    dist, indices = tree.query(src_points_transformed, k=1, return_distance=True)
+    correspondences = np.hstack((np.arange(len(src_points))[:, np.newaxis], indices))
+    correspondences = correspondences[dist[:, 0] < dist_thresh]
+    return correspondences
