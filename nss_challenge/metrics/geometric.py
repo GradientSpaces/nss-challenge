@@ -34,19 +34,19 @@ def evaluate_geometric_error(gt_graph, pred_graph, translation_threshold, rotati
     pred_edges = pred_graph.get('edges', None)
 
     if pred_edges is None:
-        pred_transforms = get_node_transforms(pred_nodes)
+        pred_trans = get_node_transforms(pred_nodes)
         logger.info("No edges found in the prediction file for %s, using predicted node transformations.", gt_graph['name'])
     else:
-        pred_transforms = get_edge_transforms(pred_edges)
+        pred_trans = get_edge_transforms(pred_edges)
 
     for gt_edge in gt_edges:
         gt_tsfm = np.array(gt_edge['tsfm'])
         src_node_id = gt_edge['source']
         tgt_node_id = gt_edge['target']
         if pred_edges is not None:
-            pred_tsfm = look_up_transforms(src_node_id, tgt_node_id, pred_transforms)
+            pred_tsfm = look_up_transforms(src_node_id, tgt_node_id, pred_trans)
         else:
-            pred_tsfm = look_up_transforms(src_node_id, tgt_node_id, pred_transforms, compute_pairwise=True)
+            pred_tsfm = look_up_transforms(src_node_id, tgt_node_id, pred_trans, compute_pairwise=True)
         rotation_error, translation_error = get_rot_trans_error(gt_tsfm, pred_tsfm)
 
         if translation_error <= translation_threshold and rotation_error <= rotation_threshold:
@@ -60,7 +60,7 @@ def evaluate_geometric_error(gt_graph, pred_graph, translation_threshold, rotati
     avg_rotation_error = _rotation_error / _success if _success > 0 else float('inf')
     
     metrics = {
-        'Registration Recall': recall,
+        'Registration Recall': recall * 100,
         'Average Translation Error': avg_translation_error,
         'Average Rotation Error': avg_rotation_error
     }
