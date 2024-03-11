@@ -35,7 +35,7 @@ You can expect the following output for the overall evaluation of all scenes:
 Overall                                 All            Same-Stage     Cross-Stage    
 -------------------------------------------------------------------------------------
 Pairwise RMSE [m]                       0.310          0.167          0.995          
-Registration Recall [%]                 23.0           46.8           13.5
+Registration Recall [%]                 23.304         46.812         13.534
 Average Translation Error [m]           0.181          0.084          0.760          
 Average Rotation Error [deg]            5.231          2.139          9.135      
 ```
@@ -120,6 +120,7 @@ representing a specific building scene.
     - stage (str):                  Temporal stage, matching "Y" in the node name.
     - spot (str):                   Spot number,  matching "Z" in the node name.
     - points (int):                 Number of points in the point cloud.
+    - anchor (bool, optional):      Indicates whether the node is an anchor node. Default is False. Only used in prediction file.
 
   - edges (list[dict], optional):   List of edges representing pairwise relationships between nodes. Each edge is a dictionary:
     - source (int):                 Node ID of the source point cloud.
@@ -133,10 +134,11 @@ representing a specific building scene.
 ### Notes
 - The transformation matrix is in the format of a 4x4 matrix, where the top-left 3x3 submatrix is the rotation matrix and the top-right 3x1 submatrix is the translation vector.
 - In the submission, only the `id`, `tsfm` fields in the nodes and `source`, `target`, `tsfm` fields in edges are considered.
-- For global pose evaluation, only the transformation in the `nodes` are  considered.
 - For pairwise pose evaluation, metrics are computed over the defined edges. If `edges`
   are missing or partially missing in the prediction files, the missing parts will be 
   computed using the nodes' global poses.
+- For global pose evaluation, only the transformation in the `nodes` is considered. 
+- **Update (10/03/2024)**: For global pose evaluation, the anchor node will be the first node in the prediction nodes list of each scene. If you want to use a different anchor node, please set the `anchor` field to `True`` in the corresponding node.
 
 For more details, please refer to the challenge website:
 https://nothing-stands-still.com/challenge

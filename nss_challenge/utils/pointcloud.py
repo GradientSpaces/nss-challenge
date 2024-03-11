@@ -58,6 +58,21 @@ def to_o3d_feats(embedding):
     return feats
 
 
+def transform_points(points, trans):
+    """Transform points using the given transformation matrix.
+
+    Args
+    ----
+        points (np.ndarray): The input points in [N, 3].
+        trans (np.ndarray): The transformation matrix in [4, 4].
+
+    Returns
+    -------
+        np.ndarray: The transformed points in [N, 3].
+    """
+    return np.dot(points, trans[:3, :3].T) + trans[:3, 3]
+
+
 class PointCloudCache:
     """Cache for point clouds to avoid redundant loading. Singleton pattern."""
 
@@ -104,7 +119,7 @@ def get_correspondences(src_path, tgt_path, trans, dist_thresh=0.1):
     """
     point_cloud_cache = PointCloudCache()
     src_points = point_cloud_cache.load(src_path)
-    src_points_transformed = np.dot(src_points, trans[:3, :3].T) + trans[:3, 3]
+    src_points_transformed = transform_points(src_points, trans)
 
     tree = point_cloud_cache.get_tree(tgt_path)
     dist, indices = tree.query(src_points_transformed, k=1, return_distance=True)
