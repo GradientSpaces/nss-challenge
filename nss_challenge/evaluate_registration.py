@@ -61,7 +61,7 @@ import os
 
 import numpy as np
 
-from .metrics.rmse import compute_pairwise_rmse
+from .metrics.rmse import compute_pairwise_rmse, compute_global_rmse
 from .metrics.geometric import evaluate_geometric_error
 from .utils.logging import get_logger, format_table
 
@@ -92,10 +92,14 @@ def evaluate_graph(gt_graph, pred_graph, translation_threshold, rotation_thresho
     )
     if point_cloud_dir is not None:
         if os.path.exists(point_cloud_dir):
-            rmses = compute_pairwise_rmse(
+            pairwise_rmse = compute_pairwise_rmse(
                 gt_graph, pred_graph, base_dir=point_cloud_dir
             )
-            metrics.update(rmses)
+            global_rmse = compute_global_rmse(
+                gt_graph, pred_graph, base_dir=point_cloud_dir
+            )
+            metrics.update(pairwise_rmse)
+            metrics.update(global_rmse)
     return metrics
 
 

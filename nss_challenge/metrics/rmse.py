@@ -4,7 +4,7 @@
 import os
 import numpy as np
 
-from ..utils.pointcloud import PointCloudCache, get_correspondences
+from ..utils.pointcloud import PointCloudCache, get_correspondences, transform_points
 from .common import get_edge_transforms, get_node_transforms, look_up_transforms
 
 
@@ -29,7 +29,7 @@ def _compute_rmse(src_path, tgt_path, trans, gt_trans):
     src_points = point_cloud_cache.load(src_path)
     tgt_points = point_cloud_cache.load(tgt_path)
     
-    src_points = np.dot(src_points, trans[:3, :3].T) + trans[:3, 3]
+    src_points = transform_points(src_points, trans)
     src_points = src_points[correspondences[:, 0], :]
     tgt_points = tgt_points[correspondences[:, 1], :]
     distances = np.linalg.norm(src_points - tgt_points, axis=1)
@@ -48,7 +48,7 @@ def compute_pairwise_rmse(gt_graph, pred_graph, base_dir):
 
     Returns
     -------
-        rmses (list[float]): List of RMSEs for each pair of fragments in the pose graph.
+        dict: Dict that includes the average RMSE for each pair of fragments.
     """
     rmses = []
 
@@ -62,19 +62,74 @@ def compute_pairwise_rmse(gt_graph, pred_graph, base_dir):
     for gt_edge in gt_graph['edges']:
         src_node_name = _get_node_name_by_id(gt_edge['source'], gt_graph['nodes'])
         tgt_node_name = _get_node_name_by_id(gt_edge['target'], gt_graph['nodes'])
-        if pred_edges is not None:
-            pred_tsfm = look_up_transforms(gt_edge['source'], gt_edge['target'], pred_transforms)
-        else:
-            pred_tsfm = look_up_transforms(gt_edge['source'], gt_edge['target'], pred_transforms, compute_pairwise=True)
-            
         src_path = os.path.join(base_dir, src_node_name)
         tgt_path = os.path.join(base_dir, tgt_node_name)
 
-        # Use predicted transformation
-        trans = np.array(pred_tsfm)
+        if pred_edges is not None:
+            pred_trans = look_up_transforms(gt_edge['source'], gt_edge['target'], pred_transforms)
+        else:
+            pred_trans = look_up_transforms(gt_edge['source'], gt_edge['target'], pred_transforms, compute_pairwise=True)
+        pred_trans = np.array(pred_trans)
         gt_trans = np.array(gt_edge['tsfm'])
-        rmse = _compute_rmse(src_path, tgt_path, trans, gt_trans)
+
+        rmse = _compute_rmse(src_path, tgt_path, pred_trans, gt_trans)
         rmses.append(rmse)
 
     overall_rmse = np.mean(rmses)
     return {"Pairwise RMSE": overall_rmse}
+
+
+def compute_global_rmse(gt_graph, pred_graph, base_dir):
+    """Compute the RMSE for the entire pose graph by merging all fragments.
+
+    Args
+    ----
+        gt_graph (dict): Ground truth pose graph.
+        pred_graph (dict): Predicted pose graph.
+        base_dir (str): Base directory where point clouds are stored.
+
+    Returns
+    -------
+        dict: Dict that includes the RMSE for the entire pose graph.
+    """
+    point_cloud_cache = PointCloudCache()
+    gt_nodes = gt_graph['nodes']
+    pred_nodes = pred_graph['nodes']
+    gt_transforms = get_node_transforms(gt_nodes)
+    pred_transforms = get_node_transforms(pred_nodes)
+
+    
+    points_gt = []
+    points_pred = []
+
+    # Find the anchor node and its transformation
+    anchor_id = None
+    for node in pred_nodes:
+        if 'anchor' in node and node['anchor'] == True:
+            anchor_id = node['id']
+            break
+    if anchor_id is None:
+        # Use the first node in prediction as the anchor if it's not found
+        anchor_id = pred_nodes[0]['id']
+
+    anchor_gt = np.linalg.inv(gt_transforms.get(anchor_id, np.eye(4)))
+    anchor_pred = np.linalg.inv(pred_transforms.get(anchor_id, np.eye(4)))
+
+    for gt_node in gt_nodes:
+        node_name = gt_node['name']
+        path = os.path.join(base_dir, node_name)
+        gt_trans = np.array(gt_node['tsfm']) @ anchor_gt
+        pred_trans = np.array(pred_transforms.get(gt_node['id'], np.eye(4))) @ anchor_pred
+
+        points_gt.append(
+            transform_points(point_cloud_cache.load(path), gt_trans)
+        )
+        points_pred.append(
+            transform_points(point_cloud_cache.load(path), pred_trans)
+        )
+    
+    points_gt = np.concatenate(points_gt, axis=0)
+    points_pred = np.concatenate(points_pred, axis=0)
+    distances = np.linalg.norm(points_gt - points_pred, axis=1)
+    rmse = np.sqrt(np.mean(np.square(distances)))
+    return {"Global RMSE": rmse}
