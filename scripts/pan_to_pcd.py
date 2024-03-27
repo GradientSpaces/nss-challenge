@@ -8,7 +8,6 @@ import argparse
 import functools
 import multiprocessing
 import os
-from telnetlib import DM
 
 import cv2
 import numpy as np
@@ -34,7 +33,7 @@ def pan_to_xyz(pan_img, threshold=4.5, dmax=10.0):
     y = depth * np.cos(lat) * np.cos(lon)
     x, y, z = x.flatten(), y.flatten(), z.flatten()
     mask = mask.flatten()
-    
+
     pcd = np.concatenate([x[:, None], y[:, None], z[:, None]], axis=-1)
     return pcd[mask]
 
