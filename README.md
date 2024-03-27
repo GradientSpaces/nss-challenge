@@ -138,7 +138,7 @@ representing a specific building scene.
   are missing or partially missing in the prediction files, the missing parts will be 
   computed using the nodes' global poses.
 - For global pose evaluation, only the transformation in the `nodes` is considered. 
-- **Update (10/03/2024)**: For global pose evaluation, the anchor node will be the first node in the prediction nodes list of each scene. If you want to use a different anchor node, please set the `anchor` field to `True`` in the corresponding node.
+- **Update (10/03/2024)**: For global pose evaluation, the anchor node will be the first node in the prediction nodes list of each scene. You can assume that the anchor node will match the corresponding node in ground truth correctly. If you want to use a different anchor node, please set the `anchor` field to `True`` in the corresponding node.
 
 For more details, please refer to the challenge website:
 https://nothing-stands-still.com/challenge
