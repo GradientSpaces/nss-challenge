@@ -93,8 +93,7 @@ In this Github repository we provide the evaluation code and metrics for the mul
 The NSS dataset is provided for non-commercial research purposes (no R&D) and can be downloaded from here. Relevant data to download are:
 <ul>
   <li> pointclouds.zip:         contains the 3D fragments</li>
-  <li> multiway_graphs.zip:     contains the "odometry" graphs</li>
-  <li> annotation_multiway.zip: only the original folder is relevant (ignore other folders)</li>
+  <li> pose_graphs.zip:         contains pose graphs for multiway registration (Only 'original' split is used in challenge)</li>
 </ul>
 Note that there is a difference between annotation.zip and annotation_multiway.zip, so make sure you download the appropriate files.
 
