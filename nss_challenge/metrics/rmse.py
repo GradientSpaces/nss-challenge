@@ -118,8 +118,8 @@ def compute_global_rmse(gt_graph, pred_graph, base_dir):
     for gt_node in gt_nodes:
         node_name = gt_node['name']
         path = os.path.join(base_dir, node_name)
-        gt_trans = np.array(gt_node['tsfm']) @ anchor_gt
-        pred_trans = np.array(pred_transforms.get(gt_node['id'], np.eye(4))) @ anchor_pred
+        gt_trans = anchor_gt @ np.array(gt_node['tsfm'])
+        pred_trans = anchor_pred @ np.array(pred_transforms.get(gt_node['id'], np.eye(4)))
 
         points_gt.append(
             transform_points(point_cloud_cache.load(path), gt_trans)
