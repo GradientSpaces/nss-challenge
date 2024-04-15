@@ -174,7 +174,7 @@ def log_result(metrics):
         for subset in SUBSET:
             name, unit = m["name"], m["unit"]
             if name in metrics[scenes[0]]["All"]:
-                metrics_overall[f"{name} [{unit}]/{subset}"] = np.mean(
+                metrics_overall[f"{name} [{unit}]/{subset}"] = np.nanmean(
                     [metrics[scene_name][subset][name] for scene_name in scenes]
                 )
 
