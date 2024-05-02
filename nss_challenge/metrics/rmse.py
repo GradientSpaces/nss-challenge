@@ -5,7 +5,12 @@ import os
 import numpy as np
 
 from ..utils.pointcloud import PointCloudCache, get_correspondences, transform_points
-from .common import get_edge_transforms, get_node_transforms, look_up_transforms
+from .common import (
+    has_transform_on_all_edges,
+    get_edge_transforms,
+    get_node_transforms,
+    look_up_transforms
+)
 
 
 def _get_node_name_by_id(node_id, nodes):
@@ -54,7 +59,10 @@ def compute_pairwise_rmse(gt_graph, pred_graph, base_dir):
 
     pred_nodes = pred_graph['nodes']
     pred_edges = pred_graph.get('edges', None)
-    if pred_edges is None:
+
+    compute_pairwise = pred_edges is None or not has_transform_on_all_edges(pred_edges)
+
+    if compute_pairwise:
         pred_transforms = get_node_transforms(pred_nodes)
     else:
         pred_transforms = get_edge_transforms(pred_edges)
@@ -64,13 +72,16 @@ def compute_pairwise_rmse(gt_graph, pred_graph, base_dir):
         tgt_node_name = _get_node_name_by_id(gt_edge['target'], gt_graph['nodes'])
         src_path = os.path.join(base_dir, src_node_name)
         tgt_path = os.path.join(base_dir, tgt_node_name)
-
-        if pred_edges is not None:
-            pred_trans = look_up_transforms(gt_edge['source'], gt_edge['target'], pred_transforms)
-        else:
-            pred_trans = look_up_transforms(gt_edge['source'], gt_edge['target'], pred_transforms, compute_pairwise=True)
+        
+        pred_trans = look_up_transforms(
+            source=gt_edge['source'],
+            target=gt_edge['target'],
+            pred_transforms=pred_transforms,
+            compute_pairwise=compute_pairwise
+        )
         pred_trans = np.array(pred_trans)
         gt_trans = np.array(gt_edge['tsfm'])
+        # breakpoint()
 
         rmse = _compute_rmse(src_path, tgt_path, pred_trans, gt_trans)
         rmses.append(rmse)

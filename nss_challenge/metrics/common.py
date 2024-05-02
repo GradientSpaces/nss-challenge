@@ -8,6 +8,11 @@ from ..utils.logging import get_logger
 logger = get_logger("Metrics")
 
 
+def has_transform_on_all_edges(edges):
+    """Check if all edges has non-empty tsfm."""
+    return all(edge['tsfm'] is not None for edge in edges)
+
+
 def get_node_transforms(nodes):
     """Precompute the transformation for each node in the pose graph for quick lookup."""
     transforms = {}
@@ -38,7 +43,7 @@ def look_up_transforms(source, target, pred_transforms, compute_pairwise=False):
         # Look up and compute the pairwise transformation.
         src_tsfm = pred_transforms.get(source, np.eye(4))
         tgt_tsfm = pred_transforms.get(target, np.eye(4))
-        pred_tsfm = np.matmul(np.linalg.inv(src_tsfm), tgt_tsfm)
+        pred_tsfm = np.matmul(np.linalg.inv(tgt_tsfm), src_tsfm)
     else:
         # Look up the predicted transformation.
         k = (source, target)
