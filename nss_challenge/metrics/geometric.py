@@ -5,7 +5,12 @@ import numpy as np
 
 from ..utils.eval import get_rot_trans_error
 from ..utils.logging import get_logger
-from .common import get_edge_transforms, get_node_transforms, look_up_transforms
+from .common import (
+    has_transform_on_all_edges,
+    get_edge_transforms,
+    get_node_transforms, 
+    look_up_transforms
+)
 
 
 logger = get_logger("Metrics")
@@ -33,9 +38,11 @@ def evaluate_geometric_error(gt_graph, pred_graph, translation_threshold, rotati
     pred_nodes = pred_graph['nodes']
     pred_edges = pred_graph.get('edges', None)
 
-    if pred_edges is None:
+    compute_pairwise = pred_edges is None or not has_transform_on_all_edges(pred_edges)
+
+    if compute_pairwise:
         pred_trans = get_node_transforms(pred_nodes)
-        logger.info("No edges found in the prediction file for %s, using predicted node transformations.", gt_graph['name'])
+        logger.info("No valid edge prediction found in the graph %s, using predicted node transformations.", gt_graph['name'])
     else:
         pred_trans = get_edge_transforms(pred_edges)
 
@@ -43,12 +50,9 @@ def evaluate_geometric_error(gt_graph, pred_graph, translation_threshold, rotati
         gt_tsfm = np.array(gt_edge['tsfm'])
         src_node_id = gt_edge['source']
         tgt_node_id = gt_edge['target']
-        if pred_edges is not None:
-            pred_tsfm = look_up_transforms(src_node_id, tgt_node_id, pred_trans)
-        else:
-            pred_tsfm = look_up_transforms(src_node_id, tgt_node_id, pred_trans, compute_pairwise=True)
+        pred_tsfm = look_up_transforms(src_node_id, tgt_node_id, pred_trans, compute_pairwise=compute_pairwise)
         rotation_error, translation_error = get_rot_trans_error(gt_tsfm, pred_tsfm)
-
+        
         if translation_error <= translation_threshold and rotation_error <= rotation_threshold:
             _success += 1
             _translation_error += translation_error.item()
