@@ -81,7 +81,6 @@ def compute_pairwise_rmse(gt_graph, pred_graph, base_dir):
         )
         pred_trans = np.array(pred_trans)
         gt_trans = np.array(gt_edge['tsfm'])
-        # breakpoint()
 
         rmse = _compute_rmse(src_path, tgt_path, pred_trans, gt_trans)
         rmses.append(rmse)

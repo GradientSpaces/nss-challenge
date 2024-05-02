@@ -9,7 +9,7 @@ logger = get_logger("Metrics")
 
 
 def has_transform_on_all_edges(edges):
-    """Check if all edges has non-empty tsfm."""
+    """Check if all edges have non-empty tsfm."""
     return all(edge['tsfm'] is not None for edge in edges)
 
 
