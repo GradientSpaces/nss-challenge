@@ -10,7 +10,7 @@ logger = get_logger("Metrics")
 
 def has_transform_on_all_edges(edges):
     """Check if all edges have non-empty tsfm."""
-    return all(edge['tsfm'] is not None for edge in edges)
+    return all(edge.get('relative_transform', edge.get('tsfm')) is not None for edge in edges)
 
 
 def get_node_transforms(nodes):
@@ -18,7 +18,7 @@ def get_node_transforms(nodes):
     transforms = {}
     for node in nodes:
         node_id = node['id']
-        pose = np.array(node['tsfm'])
+        pose = np.array(node.get('global_transform', node.get('tsfm')))
         transforms[node_id] = pose
     return transforms
 
@@ -27,9 +27,9 @@ def get_edge_transforms(edges):
     """Precompute the transformation for each edge in the pose graph for quick lookup."""
     transforms = {}
     for edge in edges:
-        src_node_id = edge['source']
-        tgt_node_id = edge['target']
-        edge_tsfm = np.array(edge['tsfm'])
+        src_node_id = edge.get('source_id', edge.get('source'))
+        tgt_node_id = edge.get('target_id', edge.get('target'))
+        edge_tsfm = np.array(edge.get('relative_transform', edge.get('tsfm')))
         k = (src_node_id, tgt_node_id)
         if k in transforms:
             logger.warning("Duplicate edge found in prediction: %s -> %s", src_node_id, tgt_node_id)

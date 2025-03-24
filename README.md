@@ -114,7 +114,7 @@ representing a specific building scene.
   - nodes (list[dict]):             List of nodes representing point clouds within the scene.
     - id (int):                     Identifier (ID) for the node within its scene.
     - name (str):                   Name of the point cloud file, formatted as "BldgX_StageY_SpotZ.ply".
-    - tsfm (list[list[float]]):     4x4 transformation matrix of the pose of the point cloud in global coordinates.
+    - global_transform (list[list[float]]):     4x4 transformation matrix of the pose of the point cloud in global coordinates.
     - building (str):               Building name, matching "X" in the node name.
     - stage (str):                  Temporal stage, matching "Y" in the node name.
     - spot (str):                   Spot number,  matching "Z" in the node name.
@@ -122,10 +122,10 @@ representing a specific building scene.
     - anchor (bool, optional):      Indicates whether the node is an anchor node. Default is False. Only used in prediction file.
 
   - edges (list[dict], optional):   List of edges representing pairwise relationships between nodes. Each edge is a dictionary:
-    - source (int):                 Node ID of the source point cloud.
-    - target (int):                 Node ID of the target point cloud.
-    - tsfm (list[list[float]]):     4x4 transformation matrix of the relative pose from the source to the target.
-    - overlap (float):              Overlap ratio between the source and target, ranging from 0.0 to 1.0.
+    - source_id (int):              Node ID of the source point cloud.
+    - target_id (int):              Node ID of the target point cloud.
+    - relative_transform (list[list[float]]):     4x4 transformation matrix of the relative pose from the source to the target.
+    - overlap_ratio (float):        Overlap ratio between the source and target, ranging from 0.0 to 1.0.
     - temporal_change (float):      Temporal change ratio indicating the amount of temporal change between the source and target, ranging from 0.0 to 1.0.
     - same_stage (bool):            Indicates whether the source and target come from the same temporal stage.
 ```

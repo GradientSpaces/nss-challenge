@@ -21,8 +21,8 @@ def evaluate_geometric_error(gt_graph, pred_graph, translation_threshold, rotati
     
     Args
     ----
-        edges_gt (list[dict]): List of ground truth edges with 'source', 'target', and 'tsfm'.
-        edges_pred (list[dict]): List of predicted edges with 'source', 'target', and 'tsfm'.
+        edges_gt (list[dict]): List of ground truth edges with 'source_id', 'target_id', and 'relative_transform'.
+        edges_pred (list[dict]): List of predicted edges with 'source_id', 'target_id', and 'relative_transform'.
         translation_threshold (float): Threshold for translation error to consider alignment correct.
         rotation_threshold (float): Threshold for rotation error (in degrees) to consider alignment correct.
 
@@ -47,9 +47,9 @@ def evaluate_geometric_error(gt_graph, pred_graph, translation_threshold, rotati
         pred_trans = get_edge_transforms(pred_edges)
 
     for gt_edge in gt_edges:
-        gt_tsfm = np.array(gt_edge['tsfm'])
-        src_node_id = gt_edge['source']
-        tgt_node_id = gt_edge['target']
+        gt_tsfm = np.array(gt_edge.get('relative_transform', gt_edge.get('tsfm')))
+        src_node_id = gt_edge.get('source_id', gt_edge.get('source'))
+        tgt_node_id = gt_edge.get('target_id', gt_edge.get('target'))
         pred_tsfm = look_up_transforms(src_node_id, tgt_node_id, pred_trans, compute_pairwise=compute_pairwise)
         rotation_error, translation_error = get_rot_trans_error(gt_tsfm, pred_tsfm)
         
