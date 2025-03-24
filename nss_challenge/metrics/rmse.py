@@ -9,7 +9,8 @@ from .common import (
     has_transform_on_all_edges,
     get_edge_transforms,
     get_node_transforms,
-    look_up_transforms
+    look_up_transforms, 
+    filter_outlier_nodes
 )
 
 
@@ -57,7 +58,8 @@ def compute_pairwise_rmse(gt_graph, pred_graph, base_dir):
     """
     rmses = []
 
-    pred_nodes = pred_graph['nodes']
+    # only evaluate on non-outlier nodes 
+    _, pred_nodes = filter_outlier_nodes(gt_graph['nodes'], pred_graph['nodes'])
     pred_edges = pred_graph.get('edges', None)
 
     compute_pairwise = pred_edges is None or not has_transform_on_all_edges(pred_edges)
@@ -103,8 +105,8 @@ def compute_global_rmse(gt_graph, pred_graph, base_dir):
         dict: Dict that includes the RMSE for the entire pose graph.
     """
     point_cloud_cache = PointCloudCache()
-    gt_nodes = gt_graph['nodes']
-    pred_nodes = pred_graph['nodes']
+    gt_nodes, pred_nodes = filter_outlier_nodes(gt_graph['nodes'], pred_graph['nodes'])
+    
     gt_transforms = get_node_transforms(gt_nodes)
     pred_transforms = get_node_transforms(pred_nodes)
 

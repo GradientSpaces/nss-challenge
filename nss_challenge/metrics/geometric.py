@@ -9,7 +9,8 @@ from .common import (
     has_transform_on_all_edges,
     get_edge_transforms,
     get_node_transforms, 
-    look_up_transforms
+    look_up_transforms, 
+    filter_outlier_nodes
 )
 
 
@@ -35,7 +36,7 @@ def evaluate_geometric_error(gt_graph, pred_graph, translation_threshold, rotati
     _success = 0
 
     gt_edges = gt_graph['edges']
-    pred_nodes = pred_graph['nodes']
+    _, pred_nodes = filter_outlier_nodes(gt_graph['nodes'], pred_graph['nodes']) 
     pred_edges = pred_graph.get('edges', None)
 
     compute_pairwise = pred_edges is None or not has_transform_on_all_edges(pred_edges)
