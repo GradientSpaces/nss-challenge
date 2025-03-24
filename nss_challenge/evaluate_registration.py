@@ -65,6 +65,7 @@ import numpy as np
 
 from .metrics.rmse import compute_pairwise_rmse, compute_global_rmse
 from .metrics.geometric import evaluate_geometric_error
+from .metrics.f1 import compute_outlier_f1
 from .utils.logging import get_logger, format_table
 
 
@@ -72,7 +73,7 @@ logger = get_logger("Evaluator")
 
 METRICS = [
     {"name": "Global RMSE", "unit": "m"},
-    {"name": "Outlier Detection F1 Score", "unit": "%"}, 
+    {"name": "Outlier F1", "unit": "%"}, 
     {"name": "Pairwise RMSE", "unit": "m"},
     {"name": "Registration Recall", "unit": "%"},
     {"name": "Average Translation Error", "unit": "m"},
@@ -93,6 +94,7 @@ def evaluate_graph(gt_graph, pred_graph, translation_threshold, rotation_thresho
     metrics = evaluate_geometric_error(
         gt_graph, pred_graph, translation_threshold, rotation_threshold
     )
+    metrics.update(compute_outlier_f1(gt_graph, pred_graph))
     if point_cloud_dir is not None:
         if os.path.exists(point_cloud_dir):
             pairwise_rmse = compute_pairwise_rmse(

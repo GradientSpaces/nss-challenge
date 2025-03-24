@@ -33,7 +33,6 @@ class TestEvaluateRegistration(unittest.TestCase):
 
     def test_evaluate(self):
         metrics = evaluate(self.args)
-        print(metrics)
         self.assertIsInstance(metrics, dict)
         
         metrics_scene = metrics["Bldg0_Scene1"]
@@ -42,6 +41,9 @@ class TestEvaluateRegistration(unittest.TestCase):
         metric = metrics_scene["All"]
         self.assertTrue(
             np.allclose(metric["Pairwise RMSE"], 0.0, atol=1e-1)
+        )
+        self.assertTrue(
+            np.allclose(metric["Outlier F1"], 100.0, atol=1e-1)
         )
         self.assertTrue(
             np.allclose(metric["Registration Recall"], 100.0, atol=1e-1)
