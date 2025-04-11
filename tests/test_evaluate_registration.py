@@ -19,10 +19,10 @@ class TestEvaluateRegistration(unittest.TestCase):
     def setUp(self):
         self.args = Args(
             prediction=os.path.join(
-                os.path.dirname(__file__), "testdata", "mock_target.json"
+                os.path.dirname(__file__), "testdata", "mock_target_2025.json"
             ),
             target=os.path.join(
-                os.path.dirname(__file__), "testdata", "mock_target.json"
+                os.path.dirname(__file__), "testdata", "mock_target_2025.json"
             ),
             translation_threshold=0.1,
             rotation_threshold=10,
@@ -43,7 +43,10 @@ class TestEvaluateRegistration(unittest.TestCase):
             np.allclose(metric["Pairwise RMSE"], 0.0, atol=1e-1)
         )
         self.assertTrue(
-            np.allclose(metric["Registration Recall"], 1.0, atol=1e-3)
+            np.allclose(metric["Outlier F1"], 100.0, atol=1e-1)
+        )
+        self.assertTrue(
+            np.allclose(metric["Registration Recall"], 100.0, atol=1e-1)
         )
         self.assertTrue(
             np.allclose(metric["Average Rotation Error"], 0.0, atol=1e-3)

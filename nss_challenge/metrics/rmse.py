@@ -9,7 +9,8 @@ from .common import (
     has_transform_on_all_edges,
     get_edge_transforms,
     get_node_transforms,
-    look_up_transforms
+    look_up_transforms, 
+    filter_outlier_nodes
 )
 
 
@@ -57,7 +58,8 @@ def compute_pairwise_rmse(gt_graph, pred_graph, base_dir):
     """
     rmses = []
 
-    pred_nodes = pred_graph['nodes']
+    # only evaluate on non-outlier nodes 
+    _, pred_nodes = filter_outlier_nodes(gt_graph['nodes'], pred_graph['nodes'])
     pred_edges = pred_graph.get('edges', None)
 
     compute_pairwise = pred_edges is None or not has_transform_on_all_edges(pred_edges)
@@ -68,19 +70,19 @@ def compute_pairwise_rmse(gt_graph, pred_graph, base_dir):
         pred_transforms = get_edge_transforms(pred_edges)
 
     for gt_edge in gt_graph['edges']:
-        src_node_name = _get_node_name_by_id(gt_edge['source'], gt_graph['nodes'])
-        tgt_node_name = _get_node_name_by_id(gt_edge['target'], gt_graph['nodes'])
+        src_node_name = _get_node_name_by_id(gt_edge.get('source_id', gt_edge.get('source')), gt_graph['nodes'])
+        tgt_node_name = _get_node_name_by_id(gt_edge.get('target_id', gt_edge.get('target')), gt_graph['nodes'])
         src_path = os.path.join(base_dir, src_node_name)
         tgt_path = os.path.join(base_dir, tgt_node_name)
         
         pred_trans = look_up_transforms(
-            source=gt_edge['source'],
-            target=gt_edge['target'],
+            source=gt_edge.get('source_id', gt_edge.get('source')),
+            target=gt_edge.get('target_id', gt_edge.get('target')), 
             pred_transforms=pred_transforms,
             compute_pairwise=compute_pairwise
         )
         pred_trans = np.array(pred_trans)
-        gt_trans = np.array(gt_edge['tsfm'])
+        gt_trans = np.array(gt_edge.get('relative_transform', gt_edge.get('tsfm')))
 
         rmse = _compute_rmse(src_path, tgt_path, pred_trans, gt_trans)
         rmses.append(rmse)
@@ -103,8 +105,8 @@ def compute_global_rmse(gt_graph, pred_graph, base_dir):
         dict: Dict that includes the RMSE for the entire pose graph.
     """
     point_cloud_cache = PointCloudCache()
-    gt_nodes = gt_graph['nodes']
-    pred_nodes = pred_graph['nodes']
+    gt_nodes, pred_nodes = filter_outlier_nodes(gt_graph['nodes'], pred_graph['nodes'])
+    
     gt_transforms = get_node_transforms(gt_nodes)
     pred_transforms = get_node_transforms(pred_nodes)
 
@@ -128,9 +130,9 @@ def compute_global_rmse(gt_graph, pred_graph, base_dir):
     for gt_node in gt_nodes:
         node_name = gt_node['name']
         path = os.path.join(base_dir, node_name)
-        gt_trans = anchor_gt @ np.array(gt_node['tsfm'])
+        gt_trans = anchor_gt @ np.array(gt_node.get('global_transform', gt_node.get('tsfm')))
         pred_trans = anchor_pred @ np.array(pred_transforms.get(gt_node['id'], np.eye(4)))
-
+        
         points_gt.append(
             transform_points(point_cloud_cache.load(path), gt_trans)
         )

@@ -9,6 +9,7 @@ define the relationships (e.g., transformations and overlaps) between pairs of
 point clouds. The evaluation is performed using the following metrics:
 
   - Global RMSE                     Measures the Root Mean Squared Error (RMSE) across all fragments in the global coordinate system.
+  - Outlier Detection F1 Score      Measures accuracy of outlier detection.
   - Pairwise RMSE                   Measures the RMSE for each pair of fragments in the scene averaged across all pairs.
   - Recall                          The percentage of correctly aligned point pairs.
   - Precision                       
@@ -29,27 +30,28 @@ representing a specific building scene.
   - nodes (list[dict]):             List of nodes representing point clouds within the scene.
     - id (int):                     Identifier (ID) for the node within its scene.
     - name (str):                   Name of the point cloud file, formatted as "BldgX_StageY_SpotZ.ply".
-    - tsfm (list[list[float]]):     4x4 transformation matrix of the pose of the point cloud in global coordinates.
+    - global_transform (list[list[float]]):     4x4 transformation matrix of the pose of the point cloud in global coordinates.
     - building (str):               Building name, matching "X" in the node name.
     - stage (str):                  Temporal stage, matching "Y" in the node name.
     - spot (str):                   Spot number,  matching "Z" in the node name.
     - points (int):                 Number of points in the point cloud.
 
   - edges (list[dict], optional):   List of edges representing pairwise relationships between nodes. Each edge is a dictionary:
-    - source (int):                 Node ID of the source point cloud.
-    - target (int):                 Node ID of the target point cloud.
-    - tsfm (list[list[float]]):     4x4 transformation matrix of the relative pose from the source to the target.
-    - overlap (float):              Overlap ratio between the source and target, ranging from 0.0 to 1.0.
+    - source_id (int):              Node ID of the source point cloud.
+    - target_id (int):              Node ID of the target point cloud.
+    - relative_transform (list[list[float]]):     4x4 transformation matrix of the relative pose from the source to the target.
+    - overlap_ratio (float):        Overlap ratio between the source and target, ranging from 0.0 to 1.0.
     - temporal_change (float):      Temporal change ratio indicating the amount of temporal change between the source and target, ranging from 0.0 to 1.0.
     - same_stage (bool):            Indicates whether the source and target come from the same temporal stage.
 
 Notes
 -----
-- In the submission, only the `id`, `tsfm` fields in the nodes and `source`, `target`, `tsfm` fields in edges are considered.
+- In the submission, only the `id`, `global_transform` fields in the nodes and `source_id`, `target_id`, `relative_transform` fields in edges are considered.
 - For global pose evaluation, only the transformation in the `nodes` are  considered.
 - For pairwise pose evaluation, metrics are computed over the defined edges. If `edges`
   are missing or partially missing in the prediction files, the missing parts will be 
   computed using the nodes' global poses.
+- 'global_transform' and 'relative_transform' were previously named 'tsfm'
 
 For more details, please refer to the challenge website:
 https://nothing-stands-still.com/challenge
@@ -63,6 +65,7 @@ import numpy as np
 
 from .metrics.rmse import compute_pairwise_rmse, compute_global_rmse
 from .metrics.geometric import evaluate_geometric_error
+from .metrics.f1 import compute_outlier_f1
 from .utils.logging import get_logger, format_table
 
 
@@ -70,6 +73,7 @@ logger = get_logger("Evaluator")
 
 METRICS = [
     {"name": "Global RMSE", "unit": "m"},
+    {"name": "Outlier F1", "unit": "%"}, 
     {"name": "Pairwise RMSE", "unit": "m"},
     {"name": "Registration Recall", "unit": "%"},
     {"name": "Average Translation Error", "unit": "m"},
@@ -90,6 +94,7 @@ def evaluate_graph(gt_graph, pred_graph, translation_threshold, rotation_thresho
     metrics = evaluate_geometric_error(
         gt_graph, pred_graph, translation_threshold, rotation_threshold
     )
+    metrics.update(compute_outlier_f1(gt_graph, pred_graph))
     if point_cloud_dir is not None:
         if os.path.exists(point_cloud_dir):
             pairwise_rmse = compute_pairwise_rmse(
