@@ -4,7 +4,7 @@ We, the <a href="https://gradientspaces.stanford.edu/">Gradient Spaces group</a>
 
 The Nothing Stands Still Challenge 2025 targets the task of multiway spatiotemporal 3D point cloud registration of data collected over time at construction sites. For more details on the data, we refer to the <a href="https://nothing-stands-still.com/challenge#">"Nothing Stands Still: A spatiotemporal benchmark on 3D point cloud registration"</a> paper that contains all information about the dataset acquisition and curation, as well as on the benchmark associated with it.
 
-<img src="assets/challenge-teaser.jpeg">
+<img src="assets/challenge-2025-teaser.png">
 
 ## Usage
 
@@ -35,7 +35,7 @@ You can expect the following output for the overall evaluation of all scenes:
 Overall                                 All            Same-Stage     Cross-Stage    
 -------------------------------------------------------------------------------------
 Pairwise RMSE [m]                       0.310          0.167          0.995          
-Registration Recall [%]                 23.304         46.812         13.534
+F1 Outlier Detection [%]                23.304         46.812         13.534
 Average Translation Error [m]           0.181          0.084          0.760          
 Average Rotation Error [deg]            5.231          2.139          9.135      
 ```
