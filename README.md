@@ -183,8 +183,8 @@ In the submission, the participants are required to also detect the outlier node
 <table border="0" width="100%">
 	<tr border="0">
 		<td width="20%" border="0"><img src="assets/people/tao_sun.jpeg" style="width: 100%; "></td>
-		<td width="20%" border="0"><img src="assets/people/emily_steiner.jpeg" style="width: 100%;"></td>
-		<td width="20%" border="0"><img src="assets/people/torben_graber.jpeg" style="width: 100%;"></td>
+		<td width="20%" border="0"><img src="assets/people/emily_steiner.jpg" style="width: 100%;"></td>
+		<td width="20%" border="0"><img src="assets/people/torben_graber.jpg" style="width: 100%;"></td>
 		<td width="20%" border="0"><img src="assets/people/michael_helmberger.jpeg" style="width: 100%;"></td>
 		<td width="20%" border="0"><img src="assets/people/iro_armeni.jpeg" style="width: 100%;"></td>
 	</tr>
