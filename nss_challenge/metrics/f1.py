@@ -28,6 +28,8 @@ def compute_outlier_f1(gt_graph, pred_graph):
     """
     outliers_true = get_outlier_nodes(gt_graph['nodes'])
     outliers_pred = get_outlier_nodes(pred_graph['nodes']) 
+    if np.sum(outliers_true) == 0:
+        return {"Outlier F1": 100.0}
     
     f1 = f1_score(outliers_true, outliers_pred)
     return {"Outlier F1": f1 * 100}
